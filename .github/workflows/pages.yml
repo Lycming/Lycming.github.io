@@ -1,58 +1,50 @@
-name: Hexo Pages
+name: Pages
 
 on:
   push:
     branches:
-      - main
+      - main # default branch
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment: github-pages
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          submodules: false
-
-      - name: Setup Node.js
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # If your repository depends on submodule, please see: https://github.com/actions/checkout
+          submodules: recursive
+      - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
+          # Examples: 20, 18.19, >=16.20.2, lts/Iron, lts/Hydrogen, *, latest, current, node
+          # Ref: https://github.com/actions/setup-node#supported-version-syntax
           node-version: "23.11.0"
-
-      - name: Cache npm
+      - name: Cache NPM dependencies
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.OS }}-npm-cache
           restore-keys: |
-            ${{ runner.os }}-npm-
-
-      - name: Install dependencies
+            ${{ runner.OS }}-npm-cache
+      - name: Install Dependencies
         run: npm install
-
-      - name: Clean Hexo
-        run: npx hexo clean
-
-      - name: Generate site
-        run: npx hexo generate
-
-      - name: Remove old deploy folder
-        run: rm -rf .deploy_git
-
-      - name: Set Git user
-        run: |
-          git config --global user.name "Lycming"
-          git config --global user.email "youremail@example.com"
-
+      - name: Build
+        run: npm run build
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./public
-
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to GitHub Pages
-        run: npx hexo deploy -f
+        id: deployment
+        uses: actions/deploy-pages@v4
