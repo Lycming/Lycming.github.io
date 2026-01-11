@@ -1,4 +1,4 @@
-name: Hexo Deploy
+name: Hexo Pages
 
 on:
   push:
@@ -8,26 +8,40 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        submodules: false
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "23.11.0"
 
-    - name: Install dependencies
-      run: npm install
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
 
-    - name: Generate Hexo site
-      run: npx hexo clean && npx hexo generate
+      - name: Install dependencies
+        run: npm install
 
-    - name: Remove old deploy folder
-      run: rm -rf .deploy_git
+      - name: Clean Hexo
+        run: npx hexo clean
 
-    - name: Deploy to GitHub Pages
-      run: npx hexo deploy -f
+      - name: Generate site
+        run: npx hexo generate
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
