@@ -11,11 +11,13 @@ jobs:
     permissions:
       pages: write
       id-token: write
-    environment: github-pages   
+    environment: github-pages
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -39,10 +41,18 @@ jobs:
       - name: Generate site
         run: npx hexo generate
 
+      - name: Remove old deploy folder
+        run: rm -rf .deploy_git
+
+      - name: Set Git user
+        run: |
+          git config --global user.name "Lycming"
+          git config --global user.email "youremail@example.com"
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./public
 
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
+        run: npx hexo deploy -f
