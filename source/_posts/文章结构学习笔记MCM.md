@@ -5,6 +5,7 @@ updated: '2026-01-23 09:00:39'
 permalink: /post/article-structure-study-notes-mcm-snekp.html
 comments: true
 toc: true
+categories:MCM
 ---
 
 
