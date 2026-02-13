@@ -18,7 +18,7 @@
 
 # 用于浏览器标签的图标
 # Icon for browser tab
-favicon: /img/fluid.png
+favicon: /img/34D8184A-2B7F-4962-AC9D-C9B7A3191DE8.jpeg
 
 # 用于苹果设备的图标
 # Icon for Apple touch
@@ -1127,3 +1127,4 @@ static_prefix:
   hint: https://lib.baomitu.com/hint.css/2.7.0/
 
   moment: https://lib.baomitu.com/moment.js/2.29.4/
+
